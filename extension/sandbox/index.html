@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Little Wallet - Sandbox Test Dapp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            background: #f5f5f5;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+
+        .status-dot.connected {
+            background: #28a745;
+        }
+
+        .wallet-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+            word-break: break-all;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .transaction-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .log-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .log-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .log-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+        }
+
+        .log-entry.error {
+            border-left-color: #dc3545;
+            color: #ff6b6b;
+        }
+
+        .log-entry.success {
+            border-left-color: #28a745;
+            color: #51cf66;
+        }
+
+        .log-time {
+            color: #888;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦄 My Little Wallet Sandbox</h1>
+        <p class="subtitle">Test dapp for wallet connection, balance queries, and transactions</p>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Not Connected</span>
+            </div>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+
+        <div class="wallet-info" id="walletInfo" style="display: none;">
+            <div class="info-row">
+                <span class="info-label">Address:</span>
+                <span class="info-value" id="addressDisplay">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Balance:</span>
+                <span class="info-value" id="balanceDisplay">- SOL</span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="connectWallet()">Connect Wallet</button>
+            <button onclick="disconnectWallet()" id="disconnectBtn" disabled>Disconnect</button>
+            <button onclick="getBalance()" id="balanceBtn" disabled>Get Balance</button>
+            <button onclick="requestAccounts()" id="accountsBtn" disabled>Get Accounts</button>
+        </div>
+
+        <div class="button-group">
+            <button onclick="runWalletDetectionAudit()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                🔍 Run Wallet Detection Audit
+            </button>
+            <button onclick="testWalletStandard()" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                🧪 Test Wallet Standard API
+            </button>
+        </div>
+
+        <div class="transaction-form">
+            <h3 style="margin-bottom: 15px; color: #333;">Send SOL Transaction</h3>
+            <div class="form-group">
+                <label for="recipientAddress">Recipient Address:</label>
+                <input type="text" id="recipientAddress" placeholder="Enter Solana address..." />
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount (SOL):</label>
+                <input type="number" id="amount" placeholder="0.001" step="0.000000001" min="0" />
+            </div>
+            <button onclick="sendTransaction()" id="sendBtn" disabled style="width: 100%;">Send Transaction</button>
+        </div>
+
+        <div class="log-section">
+            <div class="log-title">Event Log</div>
+            <div class="log-container" id="logContainer"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script>
+        // State
+        let connected = false;
+        let walletAddress = null;
+        let solanaProvider = null;
+
+        // Wallet Detection Diagnostics
+        function runWalletDetectionAudit() {
+            log('🔍 Running Wallet Detection Audit...');
+
+            // 1. Check window.solana
+            if (window.solana) {
+                log('✓ window.solana exists', 'success');
+                log(`  - isMyLittleWallet: ${window.solana.isMyLittleWallet || 'undefined'}`);
+                log(`  - isConnected: ${window.solana.isConnected || 'false'}`);
+                log(`  - publicKey: ${window.solana.publicKey?.toString() || 'null'}`);
+            } else {
+                log('✗ window.solana NOT FOUND', 'error');
+            }
+
+            // 2. Check for global injection flag
+            if (globalThis._my_little_wallet_injected) {
+                log('✓ Global injection flag found', 'success');
+            } else {
+                log('⚠ Global injection flag NOT FOUND (expected for older versions)');
+            }
+
+            // 3. Check Wallet Standard API
+            if (window.navigator?.wallets) {
+                log('✓ Wallet Standard API exists', 'success');
+                log(`  - Registered wallets: ${window.navigator.wallets.length || 0}`);
+            } else {
+                log('⚠ Wallet Standard API NOT FOUND (may prevent detection by modern dapps)', 'error');
+            }
+
+            // 4. Check for other wallet providers
+            const otherWallets = [];
+            if (window.phantom) otherWallets.push('Phantom');
+            if (window.backpack) otherWallets.push('Backpack');
+            if (window.solflare) otherWallets.push('Solflare');
+
+            if (otherWallets.length > 0) {
+                log(`⚠ Other wallets detected: ${otherWallets.join(', ')}`);
+            } else {
+                log('✓ No conflicting wallet providers detected', 'success');
+            }
+
+            log('--- Wallet Detection Audit Complete ---');
+        }
+
+        // Listen for wallet registration events
+        window.addEventListener('wallet-standard:register-wallet', (event) => {
+            log('✅ Wallet Standard registration event detected!', 'success');
+            console.log('Wallet registration details:', event.detail);
+        });
+
+        window.addEventListener('solana#initialized', () => {
+            log('✅ solana#initialized event fired', 'success');
+        });
+
+        window.addEventListener('my-little-wallet:ready', (event) => {
+            log('✅ my-little-wallet:ready event fired', 'success');
+            console.log('Wallet ready details:', event.detail);
+        });
+
+        // Initialize
+        window.addEventListener('load', async () => {
+            log('Page loaded, checking for Solana provider...');
+
+            // Run comprehensive detection audit
+            setTimeout(() => {
+                runWalletDetectionAudit();
+            }, 500); // Small delay to ensure injection is complete
+
+            // Check for window.solana (legacy)
+            if (window.solana) {
+                log('✓ window.solana detected', 'success');
+                solanaProvider = window.solana;
+
+                // Auto-connect if previously connected
+                if (window.solana.isConnected) {
+                    log('Wallet already connected, auto-connecting...');
+                    await connectWallet();
+                }
+            } else {
+                log('✗ window.solana not found - extension not installed?', 'error');
+            }
+        });
+
+        // Connect Wallet
+        async function connectWallet() {
+            try {
+                log('Requesting wallet connection...');
+
+                if (!window.solana) {
+                    throw new Error('Solana wallet not found. Please install My Little Wallet extension.');
+                }
+
+                const response = await window.solana.connect();
+                walletAddress = response.publicKey.toString();
+                connected = true;
+
+                log(`✓ Connected! Address: ${walletAddress}`, 'success');
+                updateUI();
+
+                // Auto-fetch balance
+                await getBalance();
+
+            } catch (err) {
+                log(`✗ Connection failed: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        // Disconnect Wallet
+        async function disconnectWallet() {
+            try {
+                log('Disconnecting wallet...');
+
+                if (window.solana && window.solana.disconnect) {
+                    await window.solana.disconnect();
+                }
+
+                connected = false;
+                walletAddress = null;
+
+                log('✓ Disconnected', 'success');
+                updateUI();
+
+            } catch (err) {
+                log(`✗ Disconnect failed: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        // Get Balance
+        async function getBalance() {
+            try {
+                if (!connected || !walletAddress) {
+                    throw new Error('Wallet not connected');
+                }
+
+                log('Fetching balance...');
+
+                // Use Solana web3.js to fetch balance
+                const connection = new solanaWeb3.Connection(
+                    'https://api.mainnet-beta.solana.com',
+                    'confirmed'
+                );
+
+                const publicKey = new solanaWeb3.PublicKey(walletAddress);
+                const balance = await connection.getBalance(publicKey);
+                const balanceSOL = balance / solanaWeb3.LAMPORTS_PER_SOL;
+
+                log(`✓ Balance: ${balanceSOL} SOL`, 'success');
+
+                document.getElementById('balanceDisplay').textContent = `${balanceSOL.toFixed(9)} SOL`;
+
+            } catch (err) {
+                log(`✗ Balance fetch failed: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        // Request Accounts
+        async function requestAccounts() {
+            try {
+                log('Requesting accounts...');
+
+                if (!window.solana) {
+                    throw new Error('Solana wallet not found');
+                }
+
+                // This should trigger the wallet to show account selection
+                const response = await window.solana.connect();
+                const accounts = [response.publicKey.toString()];
+
+                log(`✓ Accounts: ${JSON.stringify(accounts)}`, 'success');
+
+            } catch (err) {
+                log(`✗ Request accounts failed: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        // Send Transaction
+        async function sendTransaction() {
+            try {
+                if (!connected || !walletAddress) {
+                    throw new Error('Wallet not connected');
+                }
+
+                const recipient = document.getElementById('recipientAddress').value.trim();
+                const amount = parseFloat(document.getElementById('amount').value);
+
+                if (!recipient) {
+                    throw new Error('Please enter a recipient address');
+                }
+
+                if (!amount || amount <= 0) {
+                    throw new Error('Please enter a valid amount');
+                }
+
+                log(`Preparing transaction: ${amount} SOL to ${recipient}...`);
+
+                // Create connection
+                const connection = new solanaWeb3.Connection(
+                    'https://api.mainnet-beta.solana.com',
+                    'confirmed'
+                );
+
+                // Create transaction
+                const transaction = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: new solanaWeb3.PublicKey(walletAddress),
+                        toPubkey: new solanaWeb3.PublicKey(recipient),
+                        lamports: amount * solanaWeb3.LAMPORTS_PER_SOL,
+                    })
+                );
+
+                // Get recent blockhash
+                const { blockhash } = await connection.getLatestBlockhash();
+                transaction.recentBlockhash = blockhash;
+                transaction.feePayer = new solanaWeb3.PublicKey(walletAddress);
+
+                log('Requesting signature from wallet...');
+
+                // Request signature from wallet
+                const signedTx = await window.solana.signAndSendTransaction(transaction);
+
+                log(`✓ Transaction sent! Signature: ${signedTx.signature}`, 'success');
+                log(`Explorer: https://solscan.io/tx/${signedTx.signature}`, 'success');
+
+                // Refresh balance after 3 seconds
+                setTimeout(async () => {
+                    await getBalance();
+                }, 3000);
+
+            } catch (err) {
+                log(`✗ Transaction failed: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const walletInfo = document.getElementById('walletInfo');
+            const addressDisplay = document.getElementById('addressDisplay');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            const balanceBtn = document.getElementById('balanceBtn');
+            const accountsBtn = document.getElementById('accountsBtn');
+            const sendBtn = document.getElementById('sendBtn');
+
+            if (connected && walletAddress) {
+                statusDot.classList.add('connected');
+                statusText.textContent = 'Connected';
+                walletInfo.style.display = 'block';
+                addressDisplay.textContent = walletAddress;
+                disconnectBtn.disabled = false;
+                balanceBtn.disabled = false;
+                accountsBtn.disabled = false;
+                sendBtn.disabled = false;
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = 'Not Connected';
+                walletInfo.style.display = 'none';
+                addressDisplay.textContent = '-';
+                document.getElementById('balanceDisplay').textContent = '- SOL';
+                disconnectBtn.disabled = true;
+                balanceBtn.disabled = true;
+                accountsBtn.disabled = true;
+                sendBtn.disabled = true;
+            }
+        }
+
+        // Logging
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `<span class="log-time">${time}</span>${message}`;
+
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            log('Logs cleared');
+        }
+
+        // Test Wallet Standard API
+        async function testWalletStandard() {
+            try {
+                log('🧪 Testing Wallet Standard API...');
+
+                // Check if Wallet Standard is available
+                if (!window.navigator?.wallets) {
+                    log('✗ Wallet Standard API not available', 'error');
+                    log('This means the wallet did NOT register with the Wallet Standard', 'error');
+                    log('Modern dapps (like pump.fun) require this for wallet detection', 'error');
+                    return;
+                }
+
+                log('✓ Wallet Standard API is available', 'success');
+
+                // Get all registered wallets
+                const wallets = window.navigator.wallets;
+                log(`Found ${wallets.length} registered wallet(s):`);
+
+                wallets.forEach((getWallet, index) => {
+                    try {
+                        const wallet = getWallet();
+                        log(`  ${index + 1}. ${wallet.name || 'Unknown'} (v${wallet.version || '?'})`);
+                        log(`     - Chains: ${wallet.chains?.join(', ') || 'unknown'}`);
+                        log(`     - Features: ${Object.keys(wallet.features || {}).join(', ')}`);
+                    } catch (err) {
+                        log(`  ${index + 1}. Error reading wallet: ${err.message}`, 'error');
+                    }
+                });
+
+                // Check if My Little Wallet is in the list
+                const myLittleWallet = wallets.find((getWallet) => {
+                    try {
+                        const wallet = getWallet();
+                        return wallet.name === 'My Little Wallet' || wallet.name?.includes('Little');
+                    } catch {
+                        return false;
+                    }
+                });
+
+                if (myLittleWallet) {
+                    log('✅ My Little Wallet is properly registered in Wallet Standard!', 'success');
+                } else {
+                    log('✗ My Little Wallet NOT found in Wallet Standard registry', 'error');
+                    log('This is why pump.fun cannot detect the wallet!', 'error');
+                }
+
+            } catch (err) {
+                log(`✗ Wallet Standard test failed: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        // Initial UI update
+        updateUI();
+    </script>
+</body>
+</html>

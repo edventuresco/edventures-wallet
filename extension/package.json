@@ -1,0 +1,71 @@
+{
+  "name": "my-little-wallet",
+  "version": "0.1.0",
+  "description": "Solana browser extension wallet with Wallet Standard + legacy window.solana compatibility",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack --mode=development --watch",
+    "clean": "rm -rf dist",
+    "postbuild": "node scripts/create-icons.js",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext ts,tsx"
+  },
+  "dependencies": {
+    "@solana/wallet-standard-features": "^1.2.0",
+    "@solana/web3.js": "^1.95.8",
+    "@wallet-standard/base": "^1.1.0",
+    "@wallet-standard/features": "^1.1.0",
+    "@wallet-standard/wallet": "^1.1.0",
+    "bip39": "^3.1.0",
+    "bs58": "^6.0.0",
+    "ed25519-hd-key": "^1.3.0",
+    "openai": "^6.16.0",
+    "qrcode": "^1.5.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/bs58": "^4.0.4",
+    "@types/chrome": "^0.0.268",
+    "@types/node": "^20.12.7",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "@vitejs/plugin-react": "^4.2.1",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "copy-webpack-plugin": "^13.0.1",
+    "crypto-browserify": "^3.12.1",
+    "css-loader": "^7.1.2",
+    "dotenv": "^17.2.3",
+    "eslint": "^8.57.0",
+    "html-webpack-plugin": "^5.6.6",
+    "https-browserify": "^1.0.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BitHighlander/my-little-wallet.git"
+  },
+  "author": "Highlander",
+  "keywords": [
+    "solana",
+    "wallet",
+    "browser-extension",
+    "wallet-standard",
+    "web3"
+  ]
+}

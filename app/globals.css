@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  /* Core palette (edventures-site/docs/brand/standards.md) */
+  --color-terracotta: #c2693f;
+  --color-terracotta-dark: #a4502c;
+  --color-forest: #2e4636;
+  --color-forest-light: #3f6049;
+  --color-sand: #f4ecdd;
+  --color-sand-dark: #e4d4b8;
+  --color-ink: #221f1a;
+
+  /* Adult app accents: tags, chips, data. Terracotta stays the only action colour. */
+  --color-olive: #596941;
+  --color-sage: #7b9271;
+  --color-slate: #557487;
+  --color-lagoon: #336670;
+
+  /* Kid palette: kid screens only, never on parent surfaces. */
+  --color-kid-green: #27663c;
+  --color-kid-sage: #8daf7c;
+  --color-kid-teal: #39a1ad;
+  --color-kid-blue: #19679f;
+  --color-kid-sun: #faba2a;
+  --color-kid-orange: #ec822f;
+  --color-kid-coral: #f06659;
+  --color-kid-purple: #a36db0;
+
+  /*
+   * Below `desktop` a device counts as a phone or tablet and gets the mobile
+   * chrome (fixed footer with the More sheet). At and above it the shell
+   * shows the top text nav instead; a real desktop view is later work.
+   */
+  --breakpoint-desktop: 80rem;
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  /* Kid success moments: a check that draws itself and a card that lifts like a leaf. Both under 600ms. */
+  --animate-check-draw: check-draw 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-leaf-lift: leaf-lift 550ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  @keyframes check-draw {
+    from {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes leaf-lift {
+    from {
+      opacity: 0;
+      transform: translateY(14px) rotate(-1.5deg);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) rotate(0);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-sand);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    /* Installed-app feel on iOS: no rubber-band text selection on taps. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: 1.1;
+  }
+}

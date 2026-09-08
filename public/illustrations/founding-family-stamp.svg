@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Edventures Wallet founding family stamp</title>
+  <desc id="desc">Terracotta circular stamp with a sprouting leaf and the words Founding Family and Edventures Wallet.</desc>
+  <defs>
+    <path id="topArc" d="M 91 256 A 165 165 0 0 1 421 256"/>
+    <path id="bottomArc" d="M 421 276 A 165 165 0 0 1 91 276"/>
+    <filter id="roughen" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".015" numOctaves="2" seed="18" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8"/>
+    </filter>
+  </defs>
+  <g fill="none" stroke="#C2693F" stroke-linecap="round" stroke-linejoin="round" filter="url(#roughen)">
+    <circle cx="256" cy="256" r="222" stroke-width="13"/>
+    <circle cx="256" cy="256" r="194" stroke-width="4"/>
+    <circle cx="256" cy="256" r="115" stroke-width="5"/>
+    <path d="M256 337V213" stroke-width="10"/>
+    <path d="M255 251c-51 3-85-25-89-76 51-4 84 22 89 76Z" fill="#C2693F" stroke-width="4"/>
+    <path d="M258 213c6-54 41-82 94-75-6 53-42 81-94 75Z" fill="#C2693F" stroke-width="4"/>
+    <path d="M184 337h144" stroke-width="9"/>
+    <circle cx="82" cy="278" r="7" fill="#C2693F" stroke="none"/>
+    <circle cx="430" cy="278" r="7" fill="#C2693F" stroke="none"/>
+  </g>
+  <g fill="#C2693F" font-family="Inter, Arial, sans-serif" font-weight="800" letter-spacing="6">
+    <text font-size="30"><textPath href="#topArc" startOffset="50%" text-anchor="middle">FOUNDING FAMILY</textPath></text>
+    <text font-size="26" letter-spacing="4"><textPath href="#bottomArc" startOffset="50%" text-anchor="middle">EDVENTURES WALLET</textPath></text>
+  </g>
+</svg>

@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Little Wallet</title>
+
+    <!-- Google Fonts: Chewy (display) and Fredoka (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+
+    <style>
+      /* Design System Variables */
+      :root {
+        /* Fonts */
+        --font-display: 'Chewy', cursive;
+        --font-body: 'Fredoka', sans-serif;
+
+        /* Brand Colors */
+        --color-brand-blue: #4FA4F4;
+        --color-brand-green: #7BC043;
+        --color-brand-orange: #F58F29;
+        --color-brand-red: #EE4E34;
+        --color-brand-yellow: #FDD835;
+
+        /* Shadows */
+        --shadow-cartoon: 0px 4px 0px 0px rgba(0,0,0,0.2);
+        --shadow-cartoon-lg: 0px 6px 0px 0px rgba(0,0,0,0.2);
+        --shadow-cartoon-sm: 0px 2px 0px 0px rgba(0,0,0,0.2);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 360px;
+        min-height: 600px;
+        font-family: var(--font-body);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-attachment: fixed;
+        color: white;
+        padding: 0;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Optional: Background image overlay */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(102,126,234,0.95) 0%, rgba(118,75,162,0.95) 100%);
+        z-index: -1;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-display);
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .header {
+        text-align: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .header h1 {
+        font-size: 64px;
+        margin-bottom: 10px;
+        line-height: 1;
+      }
+
+      .header .subtitle {
+        font-size: 12px;
+        opacity: 0.8;
+      }
+
+      .warning {
+        background: rgba(255, 107, 107, 0.2);
+        border: 1px solid rgba(255, 107, 107, 0.5);
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .warning strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .wallet-info {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 16px;
+      }
+
+      .wallet-info h3 {
+        font-size: 14px;
+        margin-bottom: 8px;
+        opacity: 0.9;
+      }
+
+      .address {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 12px;
+        font-family: "Courier New", monospace;
+        font-size: 11px;
+        word-break: break-all;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .address:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      .btn {
+        background: white;
+        color: #667eea;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4ade80;
+      }
+
+      .links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .link {
+        color: white;
+        text-decoration: none;
+        font-size: 12px;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+
+      .link:hover {
+        opacity: 1;
+      }
+
+      #toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+      }
+
+      #toast.show {
+        opacity: 1;
+      }
+
+      /* Onboarding Styles */
+      .onboarding-screen {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .onboarding-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .onboarding-content label {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: -8px;
+      }
+
+      .onboarding-content input[type="password"] {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 14px;
+      }
+
+      .onboarding-content input[type="password"]::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .seed-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 12px;
+        border-radius: 8px;
+      }
+
+      .seed-word {
+        font-family: "Courier New", monospace;
+        font-size: 11px;
+        padding: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+
+      .error-message {
+        color: #ff6b6b;
+        font-size: 12px;
+        display: none;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn:disabled:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Approval Screens */
+      .approval-screen {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .approval-content {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .site-info-box {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      .site-name-display {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .site-url-display {
+        font-size: 11px;
+        opacity: 0.8;
+        font-family: 'Courier New', monospace;
+        word-break: break-all;
+      }
+
+      .permissions-box {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .permissions-box h3 {
+        font-size: 13px;
+        margin-bottom: 10px;
+        opacity: 0.9;
+      }
+
+      .permission-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .perm-item {
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .tx-details-box {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .tx-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 13px;
+      }
+
+      .tx-row:last-child {
+        border-bottom: none;
+      }
+
+      .approval-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 5px;
+      }
+
+      .approval-buttons .btn {
+        flex: 1;
+      }
+
+      /* ========== PHASE 3: NEW CRISTEL DESIGN ========== */
+
+      /* ========== UNLOCK SCREEN ENHANCEMENTS ========== */
+      #wallet-unlock {
+        padding: 2rem 1.5rem;
+        min-height: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      #wallet-unlock .header {
+        margin-bottom: 2rem;
+      }
+
+      #wallet-unlock .header h1 {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      #wallet-unlock .header .subtitle {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+      }
+
+      #wallet-unlock .onboarding-content {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 2rem;
+        padding: 2rem 1.5rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        box-shadow: var(--shadow-cartoon-lg);
+      }
+
+      #wallet-unlock label {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        color: white;
+        margin-bottom: 0.8rem;
+        display: block;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      }
+
+      #input-unlock-password {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        border-radius: 1.2rem;
+        border: 3px solid white;
+        background: rgba(255, 255, 255, 0.95);
+        color: #667eea;
+        font-size: 1.1rem;
+        font-family: var(--font-body);
+        font-weight: 600;
+        box-shadow: var(--shadow-cartoon);
+        transition: transform 0.2s, box-shadow 0.2s;
+        letter-spacing: 0.15em;
+      }
+
+      #input-unlock-password:focus {
+        outline: none;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 0 0 rgba(0,0,0,0.2);
+        border-color: var(--color-brand-yellow);
+      }
+
+      #input-unlock-password::placeholder {
+        color: rgba(102, 126, 234, 0.4);
+        letter-spacing: normal;
+      }
+
+      #unlock-error {
+        background: rgba(255, 107, 107, 0.9);
+        color: white;
+        padding: 0.8rem 1rem;
+        border-radius: 1rem;
+        margin-top: 1rem;
+        font-weight: 600;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        box-shadow: var(--shadow-cartoon-sm);
+        animation: shake 0.5s;
+      }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+      }
+
+      #wallet-unlock .link {
+        color: white;
+        font-size: 0.9rem;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        padding: 0.5rem 0;
+        transition: transform 0.2s;
+      }
+
+      #wallet-unlock .link:hover {
+        transform: scale(1.05);
+        text-decoration: underline;
+      }
+
+      #btn-unlock-wallet {
+        width: 100%;
+        margin-top: 1.5rem;
+        background: linear-gradient(to bottom, var(--color-brand-green), #5A9A28);
+        color: white;
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+        padding: 1rem 2rem;
+        border-radius: 1.5rem;
+        border: 4px solid white;
+        box-shadow: var(--shadow-cartoon-lg);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      #btn-unlock-wallet:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 9px 0 0 rgba(0,0,0,0.25);
+      }
+
+      #btn-unlock-wallet:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 4px 0 0 rgba(0,0,0,0.2);
+      }
+
+      #btn-unlock-wallet:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      /* Unicorn Header */
+      .unicorn-header {
+        text-align: center;
+        padding: 20px 0 10px 0;
+        border-bottom: none;
+        position: relative;
+      }
+
+      .unicorn-avatar {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin: 0 auto;
+      }
+
+      .unicorn-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        position: relative;
+        z-index: 2;
+      }
+
+      .unicorn-glow {
+        position: absolute;
+        width: 130px;
+        height: 130px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: 0 0 30px rgba(255,255,255,0.8);
+        top: 25px;
+        left: 25px;
+        z-index: 1;
+      }
+
+      .character-name {
+        position: absolute;
+        top: -10px;
+        right: -50px;
+        font-family: var(--font-display);
+        font-size: 1.8rem;
+        color: #EC4899;
+        text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.1);
+        transform: rotate(12deg);
+        animation: bounce 2s ease-in-out infinite;
+        z-index: 3;
+      }
+
+      @keyframes bounce {
+        0%, 100% {
+          transform: translateY(0) rotate(12deg);
+        }
+        50% {
+          transform: translateY(-8px) rotate(12deg);
+        }
+      }
+
+      .unicorn-sparkle {
+        position: absolute;
+        animation: sparkle 1.5s ease-in-out infinite;
+        z-index: 3;
+        font-size: 1.2rem;
+      }
+
+      .sparkle-1 {
+        top: 15px;
+        right: 20px;
+      }
+
+      .sparkle-2 {
+        bottom: 40px;
+        left: 15px;
+        font-size: 0.9rem;
+        animation-delay: 0.75s;
+      }
+
+      @keyframes sparkle {
+        0%, 100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.4;
+          transform: scale(0.7);
+        }
+      }
+
+      /* Cartoon Cards Row */
+      .cards-row {
+        display: flex;
+        gap: 0.8rem;
+        margin: 1rem 1rem;
+        padding-bottom: 10px;
+      }
+
+      .cartoon-card {
+        flex: 1;
+        padding: 1.2rem 1rem;
+        border-radius: 1.5rem;
+        border: 4px solid white;
+        box-shadow: var(--shadow-cartoon-lg);
+        position: relative;
+        overflow: visible;
+        text-align: center;
+        min-height: 140px;
+      }
+
+      .cartoon-card h2 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: white;
+      }
+
+      .balance-card {
+        background: linear-gradient(to bottom, var(--color-brand-green), #5A9A28);
+      }
+
+      .activity-card {
+        background: linear-gradient(to bottom, var(--color-brand-orange), #F57C00);
+      }
+
+      .card-shine {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 40%;
+        background: rgba(255,255,255,0.15);
+        border-radius: 1.2rem 1.2rem 50% 50%;
+        pointer-events: none;
+      }
+
+      .balance-amount {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white;
+        margin: 0.3rem 0;
+        font-family: var(--font-display);
+      }
+
+      .coin-icons {
+        font-size: 1.2rem;
+        margin-top: 0.3rem;
+        display: flex;
+        justify-content: center;
+        gap: 0.3rem;
+      }
+
+      .send-button {
+        position: absolute;
+        bottom: -1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(to bottom, #42A5F5, #1E88E5);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 1.5rem;
+        border: 3px solid white;
+        box-shadow: var(--shadow-cartoon);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+        font-family: var(--font-body);
+      }
+
+      .send-button:hover {
+        transform: translateX(-50%) translateY(-2px);
+      }
+
+      .send-button:active {
+        transform: translateX(-50%) translateY(0);
+        box-shadow: 0px 2px 0px 0px rgba(0,0,0,0.2);
+      }
+
+      .address-short {
+        font-family: 'Courier New', monospace;
+        font-size: 0.7rem;
+        background: rgba(0,0,0,0.2);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        margin: 0.5rem 0;
+        word-break: break-all;
+        cursor: pointer;
+      }
+
+      .copy-link {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 0.75rem;
+        cursor: pointer;
+        text-decoration: underline;
+        margin-top: 0.5rem;
+        font-family: var(--font-body);
+      }
+
+      .copy-link:hover {
+        opacity: 0.8;
+      }
+
+      .qr-icon-btn {
+        background: rgba(255, 255, 255, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 0.6rem;
+        padding: 0.4rem 0.6rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+        backdrop-filter: blur(4px);
+      }
+
+      .qr-icon-btn:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(1.1);
+      }
+
+      .qr-icon-btn:active {
+        transform: scale(0.95);
+      }
+
+      /* Footer Controls */
+      .footer-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 160px;
+      }
+
+      .footer-gradient {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 130px;
+        background: linear-gradient(to bottom, rgba(79,164,244,0.7), rgba(25,118,210,0.95));
+        backdrop-filter: blur(8px);
+        border-radius: 50% 50% 0 0 / 20% 20% 0 0;
+      }
+
+      .footer-buttons {
+        position: absolute;
+        bottom: 15px;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-end;
+        padding: 0 1.5rem;
+      }
+
+      .footer-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        background: transparent;
+        border: none;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s;
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .footer-btn:hover {
+        transform: translateY(-3px);
+      }
+
+      .btn-icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        background: rgba(255,255,255,0.25);
+        border-radius: 1rem;
+        border: 2px solid rgba(255,255,255,0.5);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        box-shadow: var(--shadow-cartoon-sm);
+      }
+
+      /* Large Mic Button */
+      .mic-button-container {
+        position: relative;
+        margin-bottom: -0.5rem;
+      }
+
+      .mic-pulse {
+        position: absolute;
+        inset: -8px;
+        background: var(--color-brand-red);
+        border-radius: 50%;
+        opacity: 0;
+        animation: pulse-ring 1.5s ease-out infinite;
+        display: none;
+      }
+
+      .mic-pulse.active {
+        display: block;
+      }
+
+      @keyframes pulse-ring {
+        0% {
+          transform: scale(0.95);
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.15;
+        }
+        100% {
+          transform: scale(1.15);
+          opacity: 0;
+        }
+      }
+
+      .mic-button {
+        width: 6.5rem;
+        height: 6.5rem;
+        background: linear-gradient(to bottom, var(--color-brand-red), #C62828);
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 6px 0 0 rgba(0,0,0,0.25);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        z-index: 10;
+        position: relative;
+      }
+
+      .mic-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 0 0 rgba(0,0,0,0.25);
+      }
+
+      .mic-button:active {
+        transform: translateY(3px);
+        box-shadow: 0 3px 0 0 rgba(0,0,0,0.25);
+      }
+
+      .mic-icon-wrap {
+        background: rgba(255,255,255,0.25);
+        padding: 0.6rem;
+        border-radius: 50%;
+        margin-bottom: 0.2rem;
+      }
+
+      .mic-icon-wrap span {
+        font-size: 1.8rem;
+        display: block;
+      }
+
+      .mic-label {
+        font-family: var(--font-display);
+        color: white;
+        font-size: 0.85rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      }
+
+      /* Main wallet container adjustments */
+      #main-wallet {
+        position: relative;
+        min-height: 600px;
+        padding-bottom: 160px;
+      }
+
+      .container {
+        gap: 0;
+      }
+
+      /* Settings Screen - Volume Slider Styling */
+      #volume-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+      }
+
+      #volume-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid var(--color-brand-blue);
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+      }
+
+      #volume-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+      }
+
+      #volume-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid var(--color-brand-blue);
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+      }
+
+      #volume-slider::-moz-range-thumb:hover {
+        transform: scale(1.15);
+      }
+
+      #volume-slider::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 6px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.3);
+        border-radius: 3px;
+      }
+
+      #volume-slider::-moz-range-track {
+        width: 100%;
+        height: 6px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.3);
+        border-radius: 3px;
+      }
+
+      /* Settings Screen - Microphone Select Styling */
+      #microphone-select {
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+      }
+
+      #microphone-select:hover {
+        background: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.5);
+      }
+
+      #microphone-select:focus {
+        outline: none;
+        border-color: var(--color-brand-blue);
+        background: rgba(255,255,255,0.2);
+      }
+
+      #microphone-select option {
+        background: #667eea;
+        color: white;
+        padding: 8px;
+      }
+
+      /* Transaction History Styles */
+      .history-item {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 10px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.2s, background 0.2s;
+        cursor: pointer;
+      }
+
+      .history-item:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateX(4px);
+      }
+
+      .history-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .history-item-type {
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .history-item-amount {
+        font-size: 14px;
+        font-weight: 700;
+        font-family: var(--font-display);
+      }
+
+      .history-item-details {
+        font-size: 11px;
+        opacity: 0.8;
+        margin-bottom: 4px;
+      }
+
+      .history-item-address {
+        font-family: 'Courier New', monospace;
+        font-size: 10px;
+        opacity: 0.7;
+        word-break: break-all;
+      }
+
+      .history-item-time {
+        font-size: 10px;
+        opacity: 0.6;
+        margin-top: 4px;
+      }
+
+      .history-empty {
+        text-align: center;
+        padding: 40px 20px;
+        opacity: 0.7;
+      }
+
+      .history-empty-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+      }
+
+      /* QR Dialog Styles */
+      .qr-dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+      }
+
+      .qr-dialog-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+      }
+
+      .qr-dialog-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2rem;
+        border: 5px solid white;
+        box-shadow: 0 8px 0 0 rgba(0,0,0,0.3);
+        padding: 1.5rem;
+        max-width: 320px;
+        width: 90%;
+        animation: qr-dialog-appear 0.3s ease-out;
+      }
+
+      @keyframes qr-dialog-appear {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.8);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      .qr-dialog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .qr-close-btn {
+        background: rgba(255, 255, 255, 0.3);
+        border: 2px solid white;
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: white;
+        transition: transform 0.2s, background 0.2s;
+      }
+
+      .qr-close-btn:hover {
+        background: rgba(255, 255, 255, 0.5);
+        transform: scale(1.1);
+      }
+
+      .qr-close-btn:active {
+        transform: scale(0.9);
+      }
+
+      .qr-dialog-body {
+        text-align: center;
+      }
+
+      .qr-code-container {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        border: 4px solid rgba(255, 255, 255, 0.8);
+        box-shadow: var(--shadow-cartoon-lg);
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      #qr-canvas {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .qr-address-display {
+        font-family: 'Courier New', monospace;
+        font-size: 0.7rem;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.8rem;
+        border-radius: 0.8rem;
+        word-break: break-all;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- ONBOARDING: Welcome Screen -->
+      <div id="onboarding-welcome" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>🦄</h1>
+          <p class="subtitle">My Little Wallet</p>
+        </div>
+        <div class="onboarding-content">
+          <p>Welcome! Let's get you set up in just a few steps.</p>
+          <p>You'll create a password and receive a 12-word recovery phrase.</p>
+        </div>
+        <button class="btn" id="btn-start">Get Started</button>
+      </div>
+
+      <!-- ONBOARDING: Create Password Screen -->
+      <div id="onboarding-password" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>Create Password</h1>
+        </div>
+        <div class="onboarding-content">
+          <label>Password (min 8 characters)</label>
+          <input type="password" id="input-password" placeholder="Enter password" />
+
+          <label>Confirm Password</label>
+          <input
+            type="password"
+            id="input-password-confirm"
+            placeholder="Confirm password"
+          />
+
+          <div class="warning">
+            <strong>⚠️ Important</strong>
+            Keep this password safe. You'll need it to unlock your wallet.
+          </div>
+        </div>
+        <button class="btn" id="btn-create-wallet">Create Wallet</button>
+        <div id="password-error" class="error-message"></div>
+      </div>
+
+      <!-- ONBOARDING: Seed Phrase Display -->
+      <div id="onboarding-seed" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>Your Recovery Phrase</h1>
+        </div>
+        <div class="onboarding-content">
+          <p>These 12 words are your wallet backup. Write them down and keep them safe.</p>
+          <p><strong>Anyone with these words can access your wallet!</strong></p>
+
+          <div class="seed-grid" id="seed-words">
+            <!-- Populated by JS -->
+          </div>
+
+          <div class="warning">
+            <strong>⚠️ Never share these words</strong>
+            Store them in a safe place. You'll need them to recover your wallet.
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="checkbox-backup" />
+            I have safely written down my recovery phrase
+          </label>
+        </div>
+        <button class="btn" id="btn-seed-continue" disabled>Continue</button>
+      </div>
+
+      <!-- ONBOARDING: Setup Complete -->
+      <div id="onboarding-complete" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>✅ Wallet Ready!</h1>
+        </div>
+        <div class="onboarding-content">
+          <p>Your wallet is set up and ready to use.</p>
+        </div>
+        <button class="btn" id="btn-open-wallet">Open Wallet</button>
+      </div>
+
+      <!-- UNLOCK: Wallet Unlock Screen -->
+      <div id="wallet-unlock" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>🔐</h1>
+          <h2 style="font-family: var(--font-display); font-size: 2.5rem; margin: 0.5rem 0; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
+            Welcome Back
+          </h2>
+          <p class="subtitle">Enter your password to unlock</p>
+        </div>
+        <div class="onboarding-content">
+          <label>Password</label>
+          <input
+            type="password"
+            id="input-unlock-password"
+            placeholder="••••••••••"
+            autofocus
+          />
+
+          <div id="unlock-error" class="error-message"></div>
+
+          <div style="text-align: center; margin-top: 1.2rem;">
+            <a href="#" id="link-forgot-password" class="link">
+              🔑 Forgot password?
+            </a>
+          </div>
+        </div>
+        <button class="btn" id="btn-unlock-wallet">Unlock Wallet</button>
+      </div>
+
+      <!-- SETTINGS: Settings Menu -->
+      <div id="settings-screen" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>⚙️ Settings</h1>
+          <p class="subtitle">Wallet Settings</p>
+        </div>
+        <div class="onboarding-content" style="padding: 24px 20px;">
+          <!-- Voice Settings Section -->
+          <div style="background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 16px; color: white;">
+              🎤 Voice Settings
+            </h3>
+
+            <!-- Microphone Selection -->
+            <div style="margin-bottom: 16px;">
+              <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: white;">
+                Microphone
+              </label>
+              <select id="microphone-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: white; font-size: 0.9rem; font-family: var(--font-body);">
+                <option value="default">Default Microphone</option>
+                <!-- More options populated by JS -->
+              </select>
+            </div>
+
+            <!-- Volume Control -->
+            <div style="margin-bottom: 8px;">
+              <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: white;">
+                Volume
+              </label>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 1.2rem;">🔈</span>
+                <input
+                  type="range"
+                  id="volume-slider"
+                  min="0"
+                  max="100"
+                  value="80"
+                  style="flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.3); outline: none; -webkit-appearance: none;"
+                />
+                <span style="font-size: 1.2rem;">🔊</span>
+                <span id="volume-value" style="min-width: 45px; font-weight: 600; color: white;">80%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wallet Settings Section -->
+          <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
+            <button class="btn" id="btn-approved-dapps" style="padding: 16px 20px; font-size: 1rem; border-radius: 12px; background: linear-gradient(to bottom, var(--color-brand-blue), #1976D2); color: white; font-weight: 700; border: 3px solid white; box-shadow: var(--shadow-cartoon);">
+              🔌 Approved Dapps & Limits
+            </button>
+
+            <button class="btn" id="btn-review-seed" style="padding: 16px 20px; font-size: 1rem; border-radius: 12px; font-weight: 700;">
+              📝 Review / Backup Seed Phrase
+            </button>
+
+            <button class="btn" id="btn-delete-wallet" style="background: linear-gradient(to bottom, #ff6b6b, #d63031); color: white; padding: 16px 20px; font-size: 1rem; border-radius: 12px; border: 3px solid rgba(255,255,255,0.4); font-weight: 700;">
+              🗑️ Delete Wallet
+            </button>
+
+            <button class="btn btn-secondary" id="btn-cancel-settings" style="padding: 16px 20px; font-size: 1rem; border-radius: 12px; font-weight: 700;">
+              Cancel
+            </button>
+          </div>
+
+          <div class="warning" style="margin-top: 8px; padding: 16px; border-radius: 12px;">
+            <strong>⚠️ Important</strong>
+            Always keep your seed phrase safe. Anyone with access to it can control your wallet.
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS: Review Seed - Password Verification -->
+      <div id="review-seed-password" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>🔐 Verify Password</h1>
+          <p class="subtitle">Enter password to view seed phrase</p>
+        </div>
+        <div class="onboarding-content">
+          <label>Password</label>
+          <input
+            type="password"
+            id="input-review-password"
+            placeholder="Enter your password"
+            autofocus
+          />
+
+          <div id="review-password-error" class="error-message"></div>
+
+          <div class="warning">
+            <strong>⚠️ Security Notice</strong>
+            Your seed phrase will be displayed on screen. Make sure no one is watching.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" id="btn-cancel-review-seed" style="flex: 1;">Cancel</button>
+          <button class="btn" id="btn-verify-review-password" style="flex: 1;">Continue</button>
+        </div>
+      </div>
+
+      <!-- SETTINGS: Seed Phrase Display -->
+      <div id="review-seed-display" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>🔑 Your Seed Phrase</h1>
+        </div>
+        <div class="onboarding-content">
+          <p><strong>Write down these 12 words in order and store them safely.</strong></p>
+
+          <div class="seed-grid" id="review-seed-words">
+            <!-- Populated by JS -->
+          </div>
+
+          <div class="warning">
+            <strong>⚠️ Never share these words</strong>
+            Anyone with these words can access your wallet and steal your funds.
+          </div>
+        </div>
+        <button class="btn" id="btn-done-review-seed">Done</button>
+      </div>
+
+      <!-- APPROVAL: Connection Request -->
+      <div id="approve-connection" class="approval-screen" style="display: none">
+        <div class="header">
+          <h1>🔌 Connection Request</h1>
+          <p class="subtitle">A website wants to connect</p>
+        </div>
+        <div class="approval-content">
+          <div class="site-info-box">
+            <div style="font-size: 32px; margin-bottom: 10px;">🌐</div>
+            <div class="site-name-display" id="approval-site-name">Loading...</div>
+            <div class="site-url-display" id="approval-site-url">...</div>
+          </div>
+
+          <div class="permissions-box">
+            <h3>This site will be able to:</h3>
+            <div class="permission-list">
+              <div class="perm-item">👁️ View your wallet address</div>
+              <div class="perm-item">📊 See your account balance</div>
+              <div class="perm-item">✍️ Request transaction approvals</div>
+            </div>
+          </div>
+
+          <div class="warning">
+            <strong>⚠️ Only connect to websites you trust</strong>
+            Never share your private key or seed phrase.
+          </div>
+
+          <div class="approval-buttons">
+            <button class="btn btn-secondary" id="btn-reject-connection">Cancel</button>
+            <button class="btn" id="btn-approve-connection">Connect</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPROVAL: Transaction Request -->
+      <div id="approve-transaction" class="approval-screen" style="display: none">
+        <div class="header">
+          <h1>✍️ Approve Transaction</h1>
+          <p class="subtitle">Review details carefully</p>
+        </div>
+        <div class="approval-content">
+          <div class="site-info-box" style="text-align: center; font-size: 12px; margin-bottom: 15px;">
+            Requested by: <strong id="tx-origin">...</strong>
+          </div>
+
+          <div class="tx-details-box">
+            <div class="tx-row">
+              <span>Amount</span>
+              <span id="tx-amount" style="font-size: 18px; font-weight: 600;">...</span>
+            </div>
+            <div class="tx-row">
+              <span>From</span>
+              <span id="tx-from" style="font-size: 10px; word-break: break-all;">...</span>
+            </div>
+            <div class="tx-row">
+              <span>To</span>
+              <span id="tx-to" style="font-size: 10px; word-break: break-all;">...</span>
+            </div>
+            <div class="tx-row">
+              <span>Network Fee</span>
+              <span>~0.000005 SOL</span>
+            </div>
+          </div>
+
+          <div class="warning" style="background: rgba(255, 193, 7, 0.2); border-color: rgba(255, 193, 7, 0.5);">
+            <strong>⚠️ Double-check all details</strong>
+            This transaction cannot be reversed.
+          </div>
+
+          <div class="approval-buttons">
+            <button class="btn btn-secondary" id="btn-reject-transaction">Reject</button>
+            <button class="btn" id="btn-approve-transaction">Approve</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEND: Send Transaction Screen -->
+      <div id="send-transaction" class="onboarding-screen" style="display: none; padding: 1.5rem;">
+        <div class="header">
+          <h1>💸 Send SOL</h1>
+          <p class="subtitle">Send to any Solana address</p>
+        </div>
+        <div class="onboarding-content" style="padding: 1.2rem;">
+          <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 12px; margin-bottom: 1.2rem; border: 2px solid rgba(255, 255, 255, 0.2);">
+            <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.5rem; font-weight: 600;">Available Balance</div>
+            <div style="font-size: 1.3rem; font-weight: 700; font-family: var(--font-display);" id="send-available-balance">Loading...</div>
+          </div>
+
+          <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Recipient Address</label>
+          <input
+            type="text"
+            id="input-recipient-address"
+            placeholder="Enter Solana address"
+            style="width: 100%; padding: 0.8rem; border-radius: 0.8rem; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-size: 0.85rem; font-family: 'Courier New', monospace; margin-bottom: 0.3rem;"
+          />
+          <div id="recipient-error" class="error-message" style="margin-bottom: 1rem;"></div>
+
+          <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; margin-top: 1rem;">Amount (SOL)</label>
+          <div style="display: flex; gap: 0.6rem; margin-bottom: 0.3rem;">
+            <input
+              type="text"
+              id="input-send-amount"
+              placeholder="0.00"
+              style="flex: 1; padding: 0.8rem; border-radius: 0.8rem; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; font-weight: 600;"
+            />
+            <button class="btn" id="btn-max-amount" style="padding: 0.8rem 1.2rem; border-radius: 0.8rem; font-weight: 700; font-size: 0.9rem;">
+              Max
+            </button>
+          </div>
+          <div id="amount-error" class="error-message" style="margin-bottom: 0.8rem;"></div>
+
+          <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.8rem; padding: 0.6rem; background: rgba(0,0,0,0.2); border-radius: 0.6rem;" id="fee-estimate-text">
+            Estimated fee: ~0.000005 SOL
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.8rem; margin-top: 1rem; padding: 0 1.2rem;">
+          <button class="btn btn-secondary" id="btn-cancel-send" style="flex: 1; padding: 1rem; border-radius: 1rem; font-weight: 700;">Cancel</button>
+          <button class="btn" id="btn-review-transaction" style="flex: 1; padding: 1rem; border-radius: 1rem; font-weight: 700;" disabled>Send</button>
+        </div>
+      </div>
+
+      <!-- SEND SUCCESS: Transaction Confirmation Screen -->
+      <div id="send-success" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>✅ Transaction Sent!</h1>
+        </div>
+        <div class="onboarding-content">
+          <p>Your transaction has been broadcast to the Solana network.</p>
+
+          <div style="background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 8px; margin-top: 16px;">
+            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">Transaction Signature</div>
+            <div
+              id="transaction-signature"
+              style="font-family: 'Courier New', monospace; font-size: 11px; word-break: break-all; cursor: pointer;"
+              title="Click to view on Solana Explorer"
+            >
+              Loading...
+            </div>
+          </div>
+
+          <div style="font-size: 12px; opacity: 0.8; margin-top: 12px;">
+            <a href="#" id="link-view-explorer" class="link" style="color: white;" target="_blank">
+              🔍 View on Solana Explorer
+            </a>
+          </div>
+        </div>
+        <button class="btn" id="btn-done-send">Done</button>
+      </div>
+
+      <!-- HISTORY: Transaction History Screen -->
+      <div id="transaction-history" class="onboarding-screen" style="display: none">
+        <div class="header">
+          <h1>📜 Transaction History</h1>
+          <p class="subtitle">Recent transactions</p>
+        </div>
+        <div class="onboarding-content" style="max-height: 400px; overflow-y: auto;">
+          <div id="history-list">
+            <!-- Populated by JS -->
+            <div style="text-align: center; padding: 20px; opacity: 0.7;">
+              Loading...
+            </div>
+          </div>
+        </div>
+        <button class="btn" id="btn-close-history">Close</button>
+      </div>
+
+      <!-- CONTACTS: Contacts Screen -->
+      <div id="contacts-screen" class="onboarding-screen" style="display: none; padding: 1.5rem;">
+        <div class="header">
+          <h1>👥 Contacts</h1>
+          <p class="subtitle">Saved addresses</p>
+        </div>
+
+        <!-- Add Contact Button -->
+        <button class="btn" id="btn-add-contact" style="width: 100%; margin-bottom: 1rem; background: linear-gradient(to bottom, var(--color-brand-green), #5A9A28); color: white; font-weight: 700; padding: 0.9rem; border-radius: 1rem;">
+          ➕ Add Contact
+        </button>
+
+        <!-- Contacts List -->
+        <div class="onboarding-content" style="max-height: 350px; overflow-y: auto; padding: 1.2rem;">
+          <div id="contacts-list">
+            <div id="contacts-empty" style="text-align: center; padding: 40px 20px; opacity: 0.7;">
+              <div style="font-size: 48px; margin-bottom: 12px;">📇</div>
+              <div style="font-size: 14px; margin-bottom: 8px; font-weight: 600;">No contacts yet</div>
+              <div style="font-size: 12px; opacity: 0.8;">Save addresses for quick sending</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" id="btn-close-contacts" style="margin-top: 1rem; width: 100%; font-weight: 700; padding: 0.9rem; border-radius: 1rem;">Close</button>
+      </div>
+
+      <!-- ADD CONTACT: Add Contact Form -->
+      <div id="add-contact-screen" class="onboarding-screen" style="display: none; padding: 1.5rem;">
+        <div class="header">
+          <h1>➕ Add Contact</h1>
+          <p class="subtitle">Save an address</p>
+        </div>
+        <div class="onboarding-content" style="padding: 1.2rem;">
+          <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Contact Name</label>
+          <input
+            type="text"
+            id="input-contact-name"
+            placeholder="e.g., Alice, Bob, Exchange"
+            style="width: 100%; padding: 0.8rem; border-radius: 0.8rem; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-size: 0.95rem; font-family: var(--font-body); margin-bottom: 0.3rem;"
+          />
+          <div id="contact-name-error" class="error-message" style="margin-bottom: 1rem;"></div>
+
+          <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; margin-top: 1rem;">Solana Address</label>
+          <input
+            type="text"
+            id="input-contact-address"
+            placeholder="Enter Solana address"
+            style="width: 100%; padding: 0.8rem; border-radius: 0.8rem; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-size: 0.85rem; font-family: 'Courier New', monospace; margin-bottom: 0.3rem;"
+          />
+          <div id="contact-address-error" class="error-message" style="margin-bottom: 1rem;"></div>
+
+          <div class="warning" style="margin-top: 1rem; font-size: 0.8rem;">
+            <strong>💡 Tip</strong>
+            Double-check the address before saving. Sending to a wrong address can't be undone.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
+          <button class="btn btn-secondary" id="btn-cancel-add-contact" style="flex: 1; padding: 1rem; border-radius: 1rem; font-weight: 700;">Cancel</button>
+          <button class="btn" id="btn-save-contact" style="flex: 1; padding: 1rem; border-radius: 1rem; font-weight: 700; background: linear-gradient(to bottom, var(--color-brand-green), #5A9A28);" disabled>Save</button>
+        </div>
+      </div>
+
+      <!-- APPROVED DAPPS: Approved Dapps & Spend Limits Screen -->
+      <div id="approved-dapps-screen" class="onboarding-screen" style="display: none; padding: 1.5rem;">
+        <div class="header">
+          <h1>🔌 Approved Dapps</h1>
+          <p class="subtitle">Manage connections & spending limits</p>
+        </div>
+
+        <!-- Add Dapp Button -->
+        <button class="btn" id="btn-add-dapp" style="width: 100%; margin-bottom: 1rem; background: linear-gradient(to bottom, var(--color-brand-blue), #1976D2); color: white; font-weight: 700; padding: 0.9rem; border-radius: 1rem; border: 3px solid white; box-shadow: var(--shadow-cartoon);">
+          ➕ Add Dapp Manually
+        </button>
+
+        <!-- Dapps List -->
+        <div class="onboarding-content" style="max-height: 350px; overflow-y: auto; padding: 1.2rem;">
+          <div id="dapps-list" style="display: grid; grid-template-columns: 1fr; gap: 0.8rem;">
+            <div id="dapps-empty" style="text-align: center; padding: 40px 20px; opacity: 0.7;">
+              <div style="font-size: 48px; margin-bottom: 12px;">🔐</div>
+              <div style="font-size: 14px; margin-bottom: 8px; font-weight: 600;">No approved dapps</div>
+              <div style="font-size: 12px; opacity: 0.8;">Connect to a dapp to see it here</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" id="btn-close-dapps" style="margin-top: 1rem; width: 100%; font-weight: 700; padding: 0.9rem; border-radius: 1rem;">Close</button>
+      </div>
+
+      <!-- EXISTING: Main Wallet View -->
+      <div id="main-wallet" style="display: none">
+        <!-- Unicorn Header -->
+        <div class="header unicorn-header">
+          <div class="unicorn-avatar">
+            <div class="unicorn-glow"></div>
+            <img id="unicorn-img" alt="Cristel the Unicorn" />
+            <div class="unicorn-sparkle sparkle-1">⭐</div>
+            <div class="unicorn-sparkle sparkle-2">⭐</div>
+            <div class="character-name">Cristel ✨</div>
+          </div>
+        </div>
+
+        <!-- Cartoon Cards Row -->
+        <div class="cards-row">
+          <!-- Balance Card -->
+          <div class="cartoon-card balance-card">
+            <div class="card-shine"></div>
+            <h2>My Balance</h2>
+            <div class="balance-amount" id="balance" title="SOL Balance">Loading...</div>
+            <div class="coin-icons">
+              <span>🪙</span>
+              <span>🪙</span>
+            </div>
+            <button class="send-button" id="send-btn">
+              <span class="icon">💵</span>
+              <span>Send Money</span>
+            </button>
+          </div>
+
+          <!-- Activity/Info Card -->
+          <div class="cartoon-card activity-card">
+            <div class="card-shine"></div>
+            <h2>My Address</h2>
+            <div class="address-short" id="address-short" title="Click to copy">Loading...</div>
+            <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; margin-top: 0.5rem;">
+              <button class="copy-link" id="copy-btn" style="margin: 0;">Copy Full Address →</button>
+              <button class="qr-icon-btn" id="qr-btn" title="Show QR Code">📱</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="family-panel" class="cartoon-card" style="margin: 0 1rem 1rem; padding: 1rem;">
+          <h2 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Family</h2>
+          <div style="font-size: 12px; opacity: 0.85; margin-bottom: 0.75rem;">
+            Mum signs. Maya and Japan are real addresses. Explorer is the proof.
+          </div>
+          <div style="display: grid; gap: 0.75rem;">
+            <div>
+              <div style="font-size: 11px; text-transform: uppercase; opacity: 0.7;">Maya (read-only)</div>
+              <div id="maya-address" style="font-size: 11px; word-break: break-all;">Loading...</div>
+              <div id="maya-balance" style="font-size: 13px; margin-top: 0.25rem;">—</div>
+              <button class="btn btn-secondary" id="btn-send-maya" style="width: 100%; margin-top: 0.5rem; padding: 0.6rem;">
+                Send 0.001 SOL to Maya
+              </button>
+            </div>
+            <div>
+              <div style="font-size: 11px; text-transform: uppercase; opacity: 0.7;">Japan jar</div>
+              <div id="jar-address" style="font-size: 11px; word-break: break-all;">Loading...</div>
+              <div id="jar-balance" style="font-size: 13px; margin-top: 0.25rem;">—</div>
+              <div id="jar-progress" style="height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; margin-top: 0.4rem; overflow: hidden;">
+                <div id="jar-progress-bar" style="height: 100%; width: 0%; background: #7BC043;"></div>
+              </div>
+              <button class="btn btn-secondary" id="btn-fund-jar" style="width: 100%; margin-top: 0.5rem; padding: 0.6rem;">
+                Send 0.001 SOL to Japan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Controls -->
+        <div class="footer-controls">
+          <div class="footer-gradient"></div>
+
+          <div class="footer-buttons">
+            <!-- History Button -->
+            <button class="footer-btn" id="history-btn">
+              <div class="btn-icon">📜</div>
+              <span>History</span>
+            </button>
+
+            <!-- Contacts Button -->
+            <button class="footer-btn" id="contacts-btn">
+              <div class="btn-icon">👥</div>
+              <span>Contacts</span>
+            </button>
+
+            <!-- Large Mic Button (Center) -->
+            <div class="mic-button-container" id="mic-button-container" style="display: none;">
+              <div class="mic-pulse" id="mic-pulse"></div>
+              <button class="mic-button" id="voice-toggle-btn">
+                <div class="mic-icon-wrap">
+                  <span>🎤</span>
+                </div>
+                <span class="mic-label">Tap to Talk</span>
+              </button>
+            </div>
+
+            <!-- Settings Button -->
+            <button class="footer-btn" id="settings-btn">
+              <div class="btn-icon">⚙️</div>
+              <span>Settings</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hidden utility elements -->
+        <div style="display: none;">
+          <div id="address">Loading...</div>
+          <button id="refresh-balance-btn">Refresh Balance</button>
+          <button id="reset-btn">Reset Wallet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QR Code Dialog -->
+    <div id="qr-dialog" class="qr-dialog" style="display: none;">
+      <div class="qr-dialog-overlay"></div>
+      <div class="qr-dialog-content">
+        <div class="qr-dialog-header">
+          <h2 style="font-family: var(--font-display); margin: 0; font-size: 1.5rem;">📱 My Address QR Code</h2>
+          <button class="qr-close-btn" id="qr-close-btn">✕</button>
+        </div>
+        <div class="qr-dialog-body">
+          <div class="qr-code-container">
+            <canvas id="qr-canvas"></canvas>
+          </div>
+          <div class="qr-address-display" id="qr-address-display">Loading...</div>
+          <button class="btn" id="qr-copy-btn" style="margin-top: 1rem; width: 100%;">
+            📋 Copy Address
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <!-- Webpack injects the compiled popup.js automatically -->
+  </body>
+</html>
